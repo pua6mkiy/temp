@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>портфолио скебоб</title>
+    
+    <!-- Шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #050505;
+            --text: #ffffff;
+            --dim: #999999;
+            --border: rgba(255, 255, 255, 0.1);
+            --ease-custom: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Сброс */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            cursor: none; /* Скрываем курсор */
+        }
+
+        /* Для мобилок возвращаем курсор */
+        @media (pointer: coarse) {
+            * { cursor: auto !important; }
+            .cursor-dot, .cursor-outline { display: none !important; }
+        }
+
+        html.lenis {
+            height: auto;
+        }
+
+        .lenis.lenis-smooth {
+            scroll-behavior: auto !important;
+        }
+
+        .lenis.lenis-smooth [data-lenis-prevent] {
+            overscroll-behavior: contain;
+        }
+
+        .lenis.lenis-stopped {
+            overflow: hidden;
+        }
+
+        .lenis.lenis-scrolling iframe {
+            pointer-events: none;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Manrope', sans-serif;
+            overflow-x: hidden;
+            width: 100%;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- ФОН --- */
+        #starfield {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 9000;
+            opacity: 0.035;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* --- КУРСОР --- */
+        .cursor-dot {
+            position: fixed;
+            top: 0; left: 0;
+            width: 6px; height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+
+        .cursor-outline {
+            position: fixed;
+            top: 0; left: 0;
+            width: 40px; height: 40px;
+            border: 1px solid rgba(255,255,255,0.4);
+            border-radius: 50%;
+            z-index: 9998;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                        height 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+                        background-color 0.3s;
+            mix-blend-mode: difference;
+        }
+
+        body.hovered .cursor-outline {
+            width: 70px; height: 70px;
+            background-color: rgba(255,255,255,0.1);
+            border-color: transparent;
+            backdrop-filter: blur(2px);
+        }
+
+        /* --- ЛЭЙАУТ --- */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        section {
+            padding: 120px 0;
+            position: relative;
+        }
+
+        /* --- HERO --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 0;
+        }
+
+        .hero-text {
+            flex: 1;
+            z-index: 2;
+        }
+
+        .hero-label {
+            display: inline-block;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--dim);
+            margin-bottom: 24px;
+            opacity: 0;
+            animation: fadeIn 1s var(--ease-custom) 0.2s forwards;
+        }
+
+        h1 {
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            font-size: clamp(3.5rem, 7.5vw, 7rem);
+            line-height: 1;
+            margin-bottom: 32px;
+            text-transform: uppercase;
+        }
+
+        h1 .line {
+            display: block;
+            overflow: hidden;
+        }
+
+        h1 .word {
+            display: block;
+            transform: translateY(110%);
+            animation: slideUp 1.2s var(--ease-custom) 0.4s forwards;
+        }
+
+        h1 .word.outline {
+            color: transparent;
+            -webkit-text-stroke: 1px #fff;
+            animation-delay: 0.5s;
+        }
+
+        .hero-desc {
+            font-size: 1.15rem;
+            color: var(--dim);
+            max-width: 520px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInMove 1s var(--ease-custom) 0.8s forwards;
+        }
+
+        .cta-button {
+            display: inline-block;
+            text-decoration: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 18px 36px;
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 2px;
+            transition: all 0.4s var(--ease-custom);
+            background: rgba(255,255,255,0.01);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInMove 1s var(--ease-custom) 1s forwards;
+        }
+
+        .cta-button:hover {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* --- АВАТАР --- */
+        .avatar-wrapper {
+            position: relative;
+            width: clamp(280px, 32vw, 420px);
+            aspect-ratio: 1 / 1;
+            flex-shrink: 0;
+            margin-left: 60px;
+            opacity: 0;
+            animation: fadeInScale 1.4s var(--ease-custom) 0.6s forwards;
+        }
+
+        .avatar-ring {
+            position: absolute;
+            inset: -25px;
+            border: 1px dashed rgba(255,255,255,0.15);
+            border-radius: 50%;
+            animation: spin 40s linear infinite;
+            pointer-events: none;
+        }
+
+        .avatar-image-box {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.15);
+            position: relative;
+            background: #0a0a0a;
+            transition: transform 0.6s var(--ease-custom), border-color 0.4s;
+        }
+
+        .avatar-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+            filter: grayscale(100%) contrast(1.1);
+            transition: filter 0.6s;
+        }
+
+        .avatar-wrapper:hover .avatar-image-box {
+            transform: scale(1.03);
+            border-color: rgba(255,255,255,0.8);
+            box-shadow: 0 0 60px rgba(255,255,255,0.05);
+        }
+
+        .avatar-wrapper:hover img {
+            filter: grayscale(0%) contrast(1);
+        }
+
+        /* --- БЕГУЩАЯ СТРОКА --- */
+        .marquee {
+            width: 100%;
+            padding: 50px 0;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.015);
+            backdrop-filter: blur(8px);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+        }
+
+        .marquee-content {
+            display: flex;
+            white-space: nowrap;
+            animation: scroll 30s linear infinite;
+        }
+
+        .marquee-item {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 3.5rem; /* Крупнее */
+            font-weight: 700;
+            color: rgba(255,255,255,0.1);
+            margin-right: 80px;
+            transition: color 0.4s, text-shadow 0.4s;
+        }
+
+        .marquee-item:hover {
+            color: #fff;
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
+        }
+
+        /* --- ХАРАКТЕРИСТИКИ --- */
+        .section-header {
+            margin-bottom: 80px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .section-title {
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2.2rem;
+            text-transform: uppercase;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            color: var(--dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%);
+            border: 1px solid var(--border);
+            padding: 40px 32px;
+            transition: all 0.5s var(--ease-custom);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 32px;
+            color: #fff;
+            opacity: 0.8;
+        }
+
+        .card-icon svg {
+            width: 100%;
+            height: 100%;
+            stroke-width: 1.2;
+        }
+
+        .card-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--dim);
+            margin-bottom: 12px;
+        }
+
+        .card-value {
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+
+        /* --- КОНТАКТЫ --- */
+        .contact-area {
+            text-align: center;
+            padding: 150px 0 200px;
+        }
+
+        .email-btn {
+            display: inline-block;
+            text-decoration: none;
+            color: #fff;
+            font-family: 'Syncopate', sans-serif;
+            font-size: clamp(1.5rem, 5vw, 3.5rem);
+            font-weight: 700;
+            position: relative;
+            padding: 20px 0;
+            transition: color 0.4s;
+        }
+
+        .email-btn::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 5px;
+            width: 0%;
+            height: 2px;
+            background: #fff;
+            transition: width 0.6s var(--ease-custom);
+        }
+
+        .email-btn:hover::after {
+            width: 100%;
+        }
+
+        .email-btn:hover {
+            opacity: 0.8;
+        }
+
+        /* --- АНИМАЦИИ CSS --- */
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideUp {
+            to { transform: translateY(0); }
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInMove {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInScale {
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 1.2s ease, transform 1.2s var(--ease-custom);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- MEDIA --- */
+        @media (max-width: 1024px) {
+            .specs-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero-text h1 { font-size: 4rem; }
+        }
+
+        @media (max-width: 768px) {
+            .hero {
+                flex-direction: column-reverse;
+                justify-content: center;
+                text-align: center;
+                gap: 60px;
+            }
+            .avatar-wrapper { margin-left: 0; }
+            .hero-desc { margin: 0 auto 40px; }
+            .specs-grid { grid-template-columns: 1fr; }
+            .section-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ФОН -->
+    <canvas id="starfield"></canvas>
+    <div class="noise"></div>
+
+    <!-- КУРСОР -->
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <!-- КОНТЕНТ -->
+    <div class="container">
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-text">
+                <span class="hero-label">ПОРТФОЛИО</span>
+                <h1>
+                    <span class="line"><span class="word">ТИМУР</span></span>
+                    <span class="line"><span class="word outline">FULL-STACK</span></span>
+                </h1>
+                <p class="hero-desc">
+                    15 лет. Ижевск, Россия
+                </p>
+                <a href="#contact" class="cta-button hover-trigger" onclick="smoothScrollTo(event, 'contact')">
+                    Связаться со мной
+                </a>
+            </div>
+
+            <!-- АВАТАР -->
+            <div class="avatar-wrapper hover-trigger">
+                <div class="avatar-ring"></div>
+                <div class="avatar-image-box">
+                    <img src="avatar.png" alt="Timur" onerror="this.src='https://ui-avatars.com/api/?name=Timur&background=111&color=fff&size=512&font-size=0.33'">
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- БЕГУЩАЯ СТРОКА -->
+    <div class="marquee hover-trigger">
+        <div class="marquee-content">
+            <span class="marquee-item">C++</span>
+            <span class="marquee-item">BASH</span>
+            <span class="marquee-item">JAVASCRIPT</span>
+            <span class="marquee-item">ERLANG</span>
+            <span class="marquee-item">PYTHON</span>
+            <span class="marquee-item">LINUX</span>
+            <span class="marquee-item">NODE.JS</span>
+            <!-- Дубликаты -->
+            <span class="marquee-item">C++</span>
+            <span class="marquee-item">BASH</span>
+            <span class="marquee-item">JAVASCRIPT</span>
+            <span class="marquee-item">ERLANG</span>
+            <span class="marquee-item">PYTHON</span>
+            <span class="marquee-item">LINUX</span>
+            <span class="marquee-item">NODE.JS</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- ХАРАКТЕРИСТИКИ -->
+        <section>
+            <div class="section-header reveal">
+                <h2 class="section-title">ХАРАКТЕРИСТИКИ СИСТЕМЫ</h2>
+                <span class="section-subtitle">Рабочее окружение</span>
+            </div>
+            
+            <div class="specs-grid">
+                <!-- Карточка 1 -->
+                <div class="card reveal hover-trigger">
+                    <div class="card-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                        </svg>
+                    </div>
+                    <div class="card-label">ПРОЦЕССОР</div>
+                    <div class="card-value">Intel Core i5-10400</div>
+                </div>
+
+                <!-- Карточка 2 -->
+                <div class="card reveal hover-trigger" style="transition-delay: 0.1s;">
+                    <div class="card-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                        </svg>
+                    </div>
+                    <div class="card-label">ОЗУ</div>
+                    <div class="card-value">32 GB DDR4</div>
+                </div>
+
+                <!-- Карточка 3 -->
+                <div class="card reveal hover-trigger" style="transition-delay: 0.2s;">
+                    <div class="card-icon">
+                        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div class="card-label">ОС</div>
+                    <div class="card-value">win 11p 25H2</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- КОНТАКТЫ -->
+        <section id="contact" class="contact-area">
+            <div class="reveal">
+                <div class="card-label" style="margin-bottom: 24px; font-size: 14px;">ГОТОВ К РАБОТЕ</div>
+                <a href="mailto:puag6mkiy@mozmail.com" class="email-btn hover-trigger">
+                    puag6mkiy@mozmail.com
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <!-- СКРИПТЫ -->
+    
+    <!-- Подключаем Lenis для плавного скролла -->
+    <script src="https://cdn.jsdelivr.net/gh/studio-freight/lenis@1.0.29/bundled/lenis.min.js"></script>
+
+    <script>
+        // --- 1. ПЛАВНЫЙ СКРОЛЛ (LENIS) ---
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Функция для скролла по кнопке
+        function smoothScrollTo(e, targetId) {
+            e.preventDefault();
+            const target = document.getElementById(targetId);
+            lenis.scrollTo(target);
+        }
+
+        // --- 2. КУРСОР ---
+        const cursorDot = document.querySelector('.cursor-dot');
+        const cursorOutline = document.querySelector('.cursor-outline');
+
+        let mouseX = 0, mouseY = 0;
+        let outlineX = 0, outlineY = 0;
+
+        function animateCursor() {
+            let distMapX = mouseX - outlineX;
+            let distMapY = mouseY - outlineY;
+            
+            outlineX += distMapX * 0.15;
+            outlineY += distMapY * 0.15;
+
+            cursorOutline.style.left = outlineX + 'px';
+            cursorOutline.style.top = outlineY + 'px';
+            cursorDot.style.left = mouseX + 'px';
+            cursorDot.style.top = mouseY + 'px';
+
+            requestAnimationFrame(animateCursor);
+        }
+        
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        animateCursor();
+
+        // Hover
+        document.querySelectorAll('.hover-trigger, a').forEach(el => {
+            el.addEventListener('mouseenter', () => document.body.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => document.body.classList.remove('hovered'));
+        });
+
+        // --- 3. БЭКГРАУНД (ЗВЕЗДЫ + РАНДОМНЫЕ КОМЕТЫ) ---
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const stars = [];
+        for(let i=0; i<150; i++){
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                size: Math.random() * 1.5,
+                alpha: Math.random(),
+                speed: Math.random() * 0.05
+            });
+        }
+
+        // Продвинутая система комет
+        let comets = [];
+        
+        class Comet {
+            constructor(){
+                this.reset(true); // true = спавн где угодно при старте (опционально)
+            }
+            
+            reset(initial = false){
+                // Случайная позиция старта (может вылететь слева, сверху или справа)
+                const startSide = Math.random();
+                
+                if(startSide < 0.33) { // Слева
+                    this.x = -100;
+                    this.y = Math.random() * height * 0.7;
+                } else if(startSide < 0.66) { // Сверху
+                    this.x = Math.random() * width;
+                    this.y = -100;
+                } else { // Справа
+                    this.x = width + 100;
+                    this.y = Math.random() * height * 0.7;
+                }
+
+                this.size = Math.random() * 2 + 1; // Размер головы
+                this.speed = Math.random() * 5 + 3; // Скорость
+                
+                // Угол полета: всегда вниз, но с вариацией
+                if (this.x < width / 2) {
+                    this.angle = Math.PI / 4 + (Math.random() * 0.5 - 0.2); // Летит вправо-вниз
+                } else {
+                    this.angle = Math.PI * 0.75 + (Math.random() * 0.5 - 0.2); // Летит влево-вниз
+                }
+
+                this.length = Math.random() * 150 + 50; // Длина хвоста
+                this.opacity = 0;
+                this.state = 'fadeIn'; 
+                this.active = false;
+                
+                // Рандомная задержка перед следующим вылетом
+                this.delay = Math.random() * 200 + 50; 
+            }
+
+            update(){
+                if(this.delay > 0) {
+                    this.delay--;
+                    return;
+                }
+
+                // Движение
+                this.x += Math.cos(this.angle) * this.speed;
+                this.y += Math.sin(this.angle) * this.speed;
+
+                if(this.state === 'fadeIn'){
+                    this.opacity += 0.03;
+                    if(this.opacity >= 1) this.state = 'active';
+                }
+                
+                // Проверка границ
+                if(this.x > width + 200 || this.x < -200 || this.y > height + 200){
+                    this.state = 'fadeOut';
+                }
+
+                if(this.state === 'fadeOut'){
+                    this.opacity -= 0.04;
+                    if(this.opacity <= 0) this.reset();
+                }
+            }
+
+            draw(){
+                if(this.delay > 0) return;
+
+                ctx.beginPath();
+                const tailX = this.x - Math.cos(this.angle) * this.length;
+                const tailY = this.y - Math.sin(this.angle) * this.length;
+                
+                const gradient = ctx.createLinearGradient(this.x, this.y, tailX, tailY);
+                gradient.addColorStop(0, `rgba(255,255,255,${this.opacity})`);
+                gradient.addColorStop(1, `rgba(255,255,255,0)`);
+                
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = this.size;
+                ctx.lineCap = 'round';
+                ctx.moveTo(this.x, this.y);
+                ctx.lineTo(tailX, tailY);
+                ctx.stroke();
+            }
+        }
+
+        // Создаем 5 комет, они будут вылетать рандомно
+        for(let i=0; i<5; i++) comets.push(new Comet());
+
+        function animate(){
+            ctx.clearRect(0, 0, width, height);
+
+            // Звезды
+            stars.forEach(star => {
+                star.y -= star.speed;
+                if(star.y < 0) star.y = height;
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.alpha})`;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Кометы
+            comets.forEach(comet => {
+                comet.update();
+                comet.draw();
+            });
+
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // --- 4. SCROLL REVEAL ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>
